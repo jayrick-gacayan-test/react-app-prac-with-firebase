@@ -1,7 +1,7 @@
 import React from 'react';
 const ContactusPage = () => {
     return (
-        <div className="container-fluid mt-2">
+        <div className="container-fluid margin-big-top">
             <div className="container-fluid p-5 bg-primary text-white text-center">
                 <h1>Contact Us Page</h1>
                 <p>Resize this responsive page to see the effect!</p> 

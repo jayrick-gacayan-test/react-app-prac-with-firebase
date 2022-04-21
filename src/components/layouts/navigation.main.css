@@ -1,0 +1,63 @@
+#main-navigation.navbar{
+    transition: all 0.3s ease-in;
+    -webkit-transition: all 0.3s ease-in;
+    -moz-transition: all 0.3s ease-in;
+    -o-transition: all 0.3s ease-in;
+}
+
+#main-navigation.navbar-light .navbar-nav,
+.navbar-light .navbar-nav .nav-item{
+    position : relative;
+    
+}
+
+#main-navigation.navbar-light .navbar-nav .nav-link{
+	font-size: 18px;
+}
+
+#main-navigation.navbar-light .navbar-nav .nav-item::before{
+	content : "";
+	width: 0%;
+	background-color: skyblue;
+	border-radius: 1rem;
+	height: 0.3rem;
+	position: absolute;
+	bottom: -14px;
+	display: block;
+
+	transition: width 0.5s ease-in-out;
+	-webkit-transition: width 0.5s ease-in-out;
+	-moz-transition: width 0.5s ease-in-out;
+	-o-transition: width 0.5s ease-in-out;
+}
+
+#main-navigation.navbar-light .navbar-nav .nav-item.active:hover::before
+{
+    width: 0%;
+}
+
+
+#main-navigation.navbar-light .navbar-nav .nav-item:hover::before,
+#main-navigation.navbar-light .navbar-nav .nav-item.active::before
+{
+    width: 100%;
+}
+
+@media (max-width: 575px){
+	#main-navigation.navbar-light .navbar-nav .nav-item::before{
+		bottom: 0px;
+		left: 25%;
+	}
+
+	#main-navigation.navbar-light .navbar-nav .nav-item:hover::before,
+	#main-navigation.navbar-light .navbar-nav .nav-item.active::before
+	{
+		width: 50%;
+	}
+
+	#main-navigation.navbar-light .navbar-nav .nav-item.active:hover::before
+	{
+		width: 0%;
+	}
+}
+
