@@ -35,12 +35,18 @@ const TodoContainer = () => {
         switch(action.type){
             case "ADD": return [...state, action.todo];
             case "DELETE": return state.filter(todo => { return todo.id !== action.id });
+            case "COMPLETE_STATUS": 
+                console.log("State and action", state, action);
+                return state;
             default : return state;
         }
     }
 
     const [ todos, dispatch ] = useReducer(reducer, todosData);
     
+    const todoCompleteStatus = (id) => {
+        dispatch({ type: "COMPLETE_STATUS", id : id });
+    }
 
     const addTodo = () => {
         const newTodo = {
