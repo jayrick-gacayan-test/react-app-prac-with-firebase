@@ -1,4 +1,8 @@
-import React, { useReducer } from 'react';
+import React, { useState, useReducer, useEffect } from 'react';
+import TodoList from './TodoList';
+import TodoForm from './TodoForm';
+
+import '../custom.style/todo.style.css';
 
 const TodoContainer = () => {
 
@@ -6,55 +10,84 @@ const TodoContainer = () => {
         id : null,
         name : "",
         title : "",
-        complete : false
+        completed : false
     }
     
-    const todosData = [
-        {
-            id: 1,
-            name: "Jayrick",
-            title: "Todo 1",
-            completed: false
-        },
-        {
-            id: 2,
-            name: "Jayrick II",
-            title: "Todo 2",
-            completed: false
-        },
-        {
-            id: 3,
-            name: "Jayrick III",
-            title: "Todo 3",
-            completed: false
-        }
-    ];
-    
+    const [ editing, setEditing ] = useState(false); // checks if editing is enable
+    const [ currentTodo, setCurrentTodo ] = useState(initialState); // getting the current todo
     
     const reducer = (state, action) => {
         switch(action.type){
             case "ADD": return [...state, action.todo];
             case "DELETE": return state.filter(todo => { return todo.id !== action.id });
+            case "HANDLE_TODO_TASK":
+                return state.map(
+                    (todo) => {
+                        return todo.id === action.id ? 
+                            { ...todo, completed: !todo.completed } : todo;
+                    }
+                );
+            case "EDIT":
+                console.log("Action and state: ", action, state); 
+                return state;
+            case "UPDATE":
+                return state.map(
+                    (todo) => {
+                        return todo.id === action.todoData.id ? action.todoData : todo;
+                    }
+                );
             default : return state;
         }
     }
 
-    const [ todos, dispatch ] = useReducer(reducer, todosData);
+    const [ todos, dispatch ] = useReducer(reducer, getInitialTodos()); // use reducer
     
+    useEffect(()=>{
+            //storing todos items
+            const temp = JSON.stringify(todos);
+            localStorage.setItem("todos", temp);
+        },
+        [todos]
+    );
 
-    const addTodo = () => {
-        const newTodo = {
-            id : todos[todos.length - 1].id + 1,
-            name : "Jayrick 1",
-            title : "Todo " + (todos[todos.length - 1].id + 1),
-            completed : false
-        }
-
-        dispatch({ type: "ADD", todo: newTodo});
+    /* crude methods */
+    const addTodo = (todo) => {
+        todo.id = todos.length === 0 ? 1 : todos[todos.length - 1].id + 1;
+        dispatch({ type: "ADD", todo: todo});
+        toSetEditingAndCurrentTodo(false, initialState);
     }
 
     const deleteTodo = (id) => {
-        dispatch({ type: "DELETE", id : id});
+        dispatch({ type: "DELETE", id : id });
+        toSetEditingAndCurrentTodo(false, initialState);
+    }
+
+    const handleTodoTask = (id) => {
+        dispatch({ type: "HANDLE_TODO_TASK", id: id });
+    }
+
+    const editTodo = (todo) => {
+        toSetEditingAndCurrentTodo(true, todo);
+        dispatch({ type: "EDIT", todo: todo });
+    }
+
+    const updateTodo = (todo) =>{
+        toSetEditingAndCurrentTodo(false, initialState);
+        dispatch({ type: "UPDATE", todoData: todo });
+    }
+
+
+    function getInitialTodos(){
+        // getting stored items
+        const temp = localStorage.getItem("todos");
+        const savedTodos = JSON.parse(temp);
+
+        return savedTodos || [];
+    }
+
+    function toSetEditingAndCurrentTodo(editing, currentTodo){
+        setEditing(editing);
+        setCurrentTodo(currentTodo);
     }
 
     return (
@@ -66,17 +99,26 @@ const TodoContainer = () => {
                 
             <div className="container mt-5">
                 <div>
-                    <button onClick={ addTodo }>
-                        Add
-                    </button>
-                    {
-                        todos.map((todo) => 
-                        <div key={ todo.id }>
-                            <p>{ todo.name }</p>
-                            <p>{ todo.title }</p>
-                            <button onClick={ () => deleteTodo(todo.id) }>DELETE</button>
-                        </div>)
-                    }
+                    <div>
+                        <p className="lead font-weight-bold font-size-3 text-center">{ !editing ? "Add" : "Edit" } todo</p>
+                        <TodoForm 
+                            isEditing={ editing } 
+                            todoAction={ !editing ? addTodo : updateTodo }
+                            currentTodo={ currentTodo }
+                        />
+                    </div>
+                    <ul >
+                        {
+                            todos.length > 0 ? 
+                            (<TodoList todos={ todos }
+                                handleTodoTask={ handleTodoTask }
+                                deleteTodo={ deleteTodo }
+                                editTodo={ editTodo }/>) :
+                            (<li>No todo task yet.</li>)
+                        }
+                        
+                    </ul>
+                    
                 </div>
             </div>
         </div>

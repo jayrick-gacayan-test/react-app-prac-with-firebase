@@ -1,3 +1,8 @@
 .margin-big-top{
     margin-top: 120px;
 }
+
+ul, ol{
+    list-style-type: none;
+    padding-left: 0!important;
+}

@@ -43,7 +43,7 @@
     width: 100%;
 }
 
-@media (max-width: 575px){
+@media (max-width: 767px){
 	#main-navigation.navbar-light .navbar-nav .nav-item::before{
 		bottom: 0px;
 		left: 25%;
