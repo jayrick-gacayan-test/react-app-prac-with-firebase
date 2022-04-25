@@ -3,7 +3,7 @@ import React from 'react';
 const UserLogin = () => {
     return (
         <div className="container-fluid margin-big-top">
-            <form action="/action_page.php">
+            <form>
                 <div className="form-floating mb-3 mt-3">
                     <input type="text" 
                         className="form-control" 
