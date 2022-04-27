@@ -27,7 +27,7 @@ const NavigationMain = (props) => {
     return (
         <div className="container-fluid">
             <nav id="main-navigation" 
-                className="navbar navbar-expand-md bg-light navbar-light py-4 fixed-top justify-content-center">
+                className="navbar navbar-expand-md navbar-light py-4 fixed-top justify-content-center">
                 <div className="container">
                     <NavLink className="navbar-brand" to="/">
                         <img src={ props.logo } alt="Logo" style={{ width:"40px"}} className="rounded-pill" />
@@ -41,7 +41,7 @@ const NavigationMain = (props) => {
                             <NavigationMainItem to="/about" text="About" />
                             <NavigationMainItem to="/contact" text="Contact Us" />
                             <NavigationMainItem to="/todo" text="Todo" />
-                            <li className="nav-item text-center dropdown">
+                            <li className="nav-item white-text text-center dropdown">
                                 
                                 <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Dropdown</a>
                                 <ul className="dropdown-menu">
