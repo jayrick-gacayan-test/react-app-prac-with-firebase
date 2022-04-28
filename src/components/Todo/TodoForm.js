@@ -3,7 +3,7 @@ const TodoForm = (props) => {
     const { isEditing, todoAction } = props;
 
     const initialState = {
-        id: null,
+        key: null,
         title: '',
         name: '',
         completed: false
@@ -44,8 +44,7 @@ const TodoForm = (props) => {
                         placeholder="Todo..."
                         onChange={ handleInputChange }
                         required />
-                <div className="valid-feedback">Valid.</div>
-                <div className="invalid-feedback">Please fill out this field.</div>    
+                   
             </div>
             <div className="mb-3">
                 <label htmlFor="Name">Name</label>
@@ -57,8 +56,7 @@ const TodoForm = (props) => {
                         placeholder="Name..."
                         onChange={ handleInputChange }
                         required />
-                <div className="valid-feedback">Valid.</div>
-                <div className="invalid-feedback">Please fill out this field.</div>    
+                   
             </div>
             <button className="style-button-1 button-success"
                     style={{ width: "60%", margin: "auto", textAlign : "center", display : "block"}}>{ !isEditing ? "Add" : "Edit"} todo</button>
