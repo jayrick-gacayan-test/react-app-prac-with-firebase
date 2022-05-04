@@ -6,9 +6,9 @@ const TodoList = (props) => {
     return (
 
         todos.map(
-            (todo, index) => {
+            (todo) => {
                 return (
-                    <TodoItem key={ index } 
+                    <TodoItem key={ todo.key } 
                         todo={ todo }
                         handleTodoTask={ handleTodoTask }
                         deleteTodo={ deleteTodo }

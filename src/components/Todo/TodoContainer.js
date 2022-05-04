@@ -4,7 +4,7 @@ import TodoForm from './TodoForm';
 
 /* Firebase */
 import { db } from '../../Firebase';
-import { ref, onValue, push, child, update, remove } from 'firebase/database';
+import { ref, onValue, push, child, update, remove, set } from 'firebase/database';
 
 import '../custom.style/todo.style.css';
 
@@ -17,94 +17,101 @@ const TodoContainer = () => {
         completed : false
     }
     
-    let todoRef = ref(db, 'Todo');
+    const todoRef = ref(db, 'Todo');
     const [ editing, setEditing ] = useState(false); // checks if editing is enable
     const [ currentTodo, setCurrentTodo ] = useState(initialState); // getting the current todo
-    const [ write, canWrite ] = useState(false);
+    
     const reducer = (state, action) => {
         switch(action.type){
-            case "ADD":
-                console.log("Hello ... ", action.todo);
-                return action.todo;
+            case "ADD": 
+                return [ ...state, action.todo ];
             case "DELETE": 
-                
                 return state.filter(todo => { return todo.key !== action.key });
             case "HANDLE_TODO_TASK":
                 return state.map(
                     (todo) => {
-                        return todo.key === action.key? 
+                        return todo.key === action.key ? 
                             { ...todo, completed: !todo.completed } : todo;
                     }
                 );
             case "EDIT":
-                console.log("Action and state: ", action, state); 
                 return state;
             case "UPDATE":
                 return state.map(
                     (todo) => {
-                        return todo.key === action.todoData.key ? action.todoData : todo;
+                        return todo.key === action.todoData.key ? 
+                        action.todoData : todo;
                     }
                 );
             case "SET_TODOS" :
                 return action.data;
-            default : return state;
+            default : 
+                return state;
         }
     }
 
-    const [ todos, dispatch ] = useReducer(reducer, getInitialTodos()); // use reducer
+    const [ todos, dispatch ] = useReducer(reducer, []); // use reducer
     
-    useEffect(()=>{
-            let todoTimeout = null;
-            if(!write)
-                todoTimeout = setTimeout(fetchTodos(), 1000);
-
-            return () => { clearTimeout(todoTimeout) };
-        },
-        [ todos ]
-    );
-
-    function getInitialTodos(){
-        let todoList = [];
-
-        onValue(todoRef, (snapshot) => {
+    useEffect(
+        () => {
             
-            snapshot.forEach((childSnapshot) => {
-                const childKey = childSnapshot.key;
-                const childData = childSnapshot.val();
-                todoList.push({ key : childKey, ...childData });
-            });
-          
-        });
-        
-        return todoList || [];
-    }
+            function fetchTodos(){
+                const refTodo = ref(db, 'Todo'); // database and table reference
 
-    function fetchTodos(){
-        canWrite(true);
-        dispatch({ type: "SET_TODOS", data : getInitialTodos() });
-    
-    }
+                onValue(refTodo, 
+                        (snapshot) => {
+                            const todoList = [];
+                            
+                            snapshot.forEach(
+                                (childSnapshot) => {
+                                    const childKey = childSnapshot.key;
+                                    const childData = childSnapshot.val();
+                                    todoList.push({
+                                        key: childKey,
+                                        ...childData
+                                    });
+                                }
+                            ); // snapshot.forEach();
+
+                            dispatch({
+                                type: "SET_TODOS",
+                                data: todoList
+                            });//dispatch
+                        },//
+                    {
+                        onlyOnce : true
+                    }
+                );
+            } // end of function fetchTodos
+
+            fetchTodos();
+        
+        },
+        [ ]
+    );
 
     /* crude methods */
     const addTodo = (todo) => {
-        const newTodokey = push(child(ref(db), 'Todo')).key;
+        const refTodo = ref(db, 'Todo');
+        const { title, name, completed } = todo; // destructuring todo
+        const newTodo = push(refTodo); // getting the new key
         
-        todo.key = newTodokey;
+        set(newTodo,
+            {
+                title,
+                name,
+                completed
+            }
+        ); // setting
 
-        const todoData = {
-            title: todo.title,
-            name: todo.name,
-            completed: todo.completed
-        }
-
-        const updates = {};
-        updates['/Todo/' + newTodokey] = todoData;
-        update(ref(db), updates);   
+        dispatch({
+            type: "ADD",
+            todo: {
+                ...todo, key: newTodo.key
+            }
+        });
         
-        dispatch({ type: "ADD", todo: todo});
         toSetEditingAndCurrentTodo(false, initialState);
-
-        canWrite(false);
     }
 
     const deleteTodo = (key) => {
@@ -113,19 +120,27 @@ const TodoContainer = () => {
 
         dispatch({ type: "DELETE", key : key });
         toSetEditingAndCurrentTodo(false, initialState);
-        canWrite(false);
     }
 
     const handleTodoTask = (key) => {
-  
+        // updating method
+        // parameters needed (reference, key, data)
+
+        const refTodo = ref(db, 'Todo');
+        
         const selectedTodo = todos.filter(
             (todo) => { return todo.key === key;}
+        ); // getting the selected todo
+        
+        updateOnTodo(refTodo, 
+            key, 
+            { completed : ! selectedTodo[0].completed }
         );
-        const updateTodoRef = child(todoRef, key);
-        console.log(selectedTodo);
-        update(updateTodoRef, { completed : !selectedTodo[0].completed})
-        dispatch({ type: "HANDLE_TODO_TASK", key: key });
-        canWrite(false);
+
+        dispatch(
+            { type: "HANDLE_TODO_TASK", 
+                key: key }
+        );
     }
 
     const editTodo = (todo) => {
@@ -133,7 +148,15 @@ const TodoContainer = () => {
         dispatch({ type: "EDIT", todo: todo });
     }
 
-    const updateTodo = (todo) =>{
+    const updateTodo = (todo) => {
+        const refTodo = ref(db, 'Todo');
+        const { title, name } = todo;
+    
+        updateOnTodo(refTodo, 
+                todo.key, 
+                { title, name }
+        );
+
         toSetEditingAndCurrentTodo(false, initialState);
         dispatch({ type: "UPDATE", todoData: todo });
     }
@@ -143,7 +166,13 @@ const TodoContainer = () => {
         setCurrentTodo(currentTodo);
     }
 
-    
+    function updateOnTodo(reference, key, data){
+        update(
+            child(reference, key),
+            data
+        );
+    }
+
     return (
         <div className="container-fluid margin-big-top">
             <div className="container-fluid p-5 bg-primary text-white text-center">
@@ -161,9 +190,9 @@ const TodoContainer = () => {
                             currentTodo={ currentTodo }
                         />
                     </div>
-                    <ul >
+                    <ul>
                         {
-                           todos.length > 0 ? 
+                        todos.length > 0 ? 
                             (<TodoList todos={ todos }
                                 handleTodoTask={ handleTodoTask }
                                 deleteTodo={ deleteTodo }
@@ -172,7 +201,6 @@ const TodoContainer = () => {
                         }
                         
                     </ul>
-                    
                 </div>
             </div>
         </div>
