@@ -41,7 +41,7 @@ const NavigationMain = (props) => {
                             <NavigationMainItem to="/about" text="About" />
                             <NavigationMainItem to="/contact" text="Contact Us" />
                             <NavigationMainItem to="/todo" text="Todo" />
-                            <li className="nav-item white-text text-center dropdown">
+                            {/* <li className="nav-item white-text text-center dropdown">
                                 
                                 <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Dropdown</a>
                                 <ul className="dropdown-menu">
@@ -49,7 +49,7 @@ const NavigationMain = (props) => {
                                     <li><a className="dropdown-item" href="#">Another link</a></li>
                                     <li><a className="dropdown-item" href="#">A third link</a></li>
                                 </ul>
-                            </li>
+                            </li> */}
                         </ul>
                         <ul className="navbar-nav ms-auto">
                             <NavigationMainItem to="/login" text="Log-in"/>
