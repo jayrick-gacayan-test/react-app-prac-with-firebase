@@ -20,7 +20,7 @@ const TodoContainer = () => {
     const todoRef = ref(db, 'Todo');
     const [ editing, setEditing ] = useState(false); // checks if editing is enable
     const [ currentTodo, setCurrentTodo ] = useState(initialState); // getting the current todo
-    
+    const [ loading, isLoading ] = useState(false);
     const reducer = (state, action) => {
         switch(action.type){
             case "ADD": 
@@ -84,8 +84,17 @@ const TodoContainer = () => {
                 );
             } // end of function fetchTodos
 
-            fetchTodos();
-        
+            isLoading(true)
+
+            const fetchTodosTimeout = setTimeout(()=>{
+                fetchTodos();
+                isLoading(false);
+            }, 2000);
+
+            
+            return () => {
+                clearTimeout(fetchTodosTimeout);
+            }
         },
         [ ]
     );
@@ -190,17 +199,21 @@ const TodoContainer = () => {
                             currentTodo={ currentTodo }
                         />
                     </div>
-                    <ul>
-                        {
-                        todos.length > 0 ? 
-                            (<TodoList todos={ todos }
-                                handleTodoTask={ handleTodoTask }
-                                deleteTodo={ deleteTodo }
-                                editTodo={ editTodo }/>) :
-                            (<li>No todo task yet.</li>) 
-                        }
-                        
-                    </ul>
+                    {
+                        loading ? (<div>Loading...</div>) :
+                        (
+                            <ul>
+                                {
+                                todos.length > 0 ? 
+                                    (<TodoList todos={ todos }
+                                        handleTodoTask={ handleTodoTask }
+                                        deleteTodo={ deleteTodo }
+                                        editTodo={ editTodo }/>) :
+                                    (<li>No todo task yet.</li>) 
+                                }
+                            </ul>
+                        )
+                    }
                 </div>
             </div>
         </div>
